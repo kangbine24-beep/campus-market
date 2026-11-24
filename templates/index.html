@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>경동 마켓 - 메인</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0b2545;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+        .container {
+            max-width: 1000px;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+        .main-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            padding: 35px;
+            background: #ffffff !important;
+            margin-bottom: 25px;
+        }
+        .product-card {
+            border: 1px solid #f1f3f5;
+            border-radius: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .product-img-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
+            background-color: #f8f9fa;
+        }
+        .product-img {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+            transition: filter 0.3s;
+        }
+        .img-completed {
+            filter: brightness(0.7) blur(1.5px);
+        }
+        .badge-overlay-bottom-right {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background-color: #dc3545 !important;
+            color: white;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+        .btn-kdu {
+            background-color: #134074;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .btn-kdu:hover {
+            background-color: #0b2545;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 상단 헤더 영역 -->
+        <div class="main-card d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h2 class="fw-bold text-dark m-0">
+                <a href="{{ url_for('index') }}" class="text-decoration-none text-dark d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-primary"></i> 경동 마켓
+                </a>
+            </h2>
+            <div class="d-flex align-items-center gap-2">
+                {% if session.get('user_id') %}
+                    <span class="fw-semibold text-secondary me-2">{{ session.get('username') }}님</span>
+                    
+                    <!-- 💡 실시간 알림 뱃지가 갱신되는 채팅함 버튼 -->
+                    <a href="{{ url_for('chat_list') }}" class="btn btn-outline-primary px-3 py-2 rounded-pill fw-semibold btn-sm position-relative">
+                        <i class="fa-regular fa-comments me-1"></i> 채팅함
+                        <span id="unread-badge-container">
+                            {% if unread_count and unread_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ unread_count }}
+                                </span>
+                            {% endif %}
+                        </span>
+                    </a>
+
+                    <a href="{{ url_for('mypage') }}" class="btn btn-outline-primary px-3 py-2 rounded-pill fw-semibold btn-sm">마이페이지</a>
+                    <a href="{{ url_for('create') }}" class="btn btn-kdu px-3 py-2 rounded-pill fw-semibold btn-sm"><i class="fa-solid fa-plus me-1"></i> 상품 등록</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary px-3 py-2 rounded-pill ms-1 btn-sm">로그아웃</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary px-3 py-2 rounded-pill fw-semibold btn-sm">로그인</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-kdu px-3 py-2 rounded-pill ms-1 btn-sm">회원가입</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 검색 및 필터 영역 -->
+        <div class="main-card">
+            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-magnifying-glass me-2 text-primary"></i>맞춤 상품 검색 & 필터</h5>
+            <form method="GET" action="{{ url_for('index') }}" class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" name="keyword" class="form-control" placeholder="상품명/내용 검색" value="{{ request.args.get('keyword', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="department" class="form-control" placeholder="학과 검색 (예: 소프트웨어학과)" value="{{ request.args.get('department', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select">
+                        <option value="전체 카테고리">전체 카테고리</option>
+                        <option value="전공서적" {% if request.args.get('category') == '전공서적' %}selected{% endif %}>전공서적</option>
+                        <option value="생활용품" {% if request.args.get('category') == '생활용품' %}selected{% endif %}>생활용품</option>
+                        <option value="전자기기" {% if request.args.get('category') == '전자기기' %}selected{% endif %}>전자기기</option>
+                        <option value="기타" {% if request.args.get('category') == '기타' %}selected{% endif %}>기타</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="전체 상태">전체 상태</option>
+                        <option value="판매중" {% if request.args.get('status') == '판매중' %}selected{% endif %}>판매중</option>
+                        <option value="거래완료" {% if request.args.get('status') == '거래완료' %}selected{% endif %}>거래완료</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="max_price" class="form-control" placeholder="최대 가격 (원)" value="{{ request.args.get('max_price', '') }}">
+                </div>
+                <div class="col-md-1 d-grid">
+                    <button type="submit" class="btn btn-kdu fw-semibold">검색</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 상품 목록 영역 -->
+        <div class="main-card">
+            <h4 class="fw-bold mb-4 text-dark">등록된 중고 물품</h4>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for post in posts %}
+                    <div class="col">
+                        <div class="card product-card h-100 shadow-sm">
+                            <div class="product-img-wrapper">
+                                {% if post.image_filename %}
+                                    <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="product-img {% if post.status == '거래완료' %}img-completed{% endif %}" alt="상품 이미지">
+                                {% else %}
+                                    <div class="product-img d-flex align-items-center justify-content-center text-muted bg-light {% if post.status == '거래완료' %}img-completed{% endif %}">
+                                        <i class="fa-regular fa-image fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                                {% if post.status == '거래완료' %}
+                                    <span class="badge badge-overlay-bottom-right">거래완료</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <span class="badge bg-light text-secondary border">{{ post.category }}</span>
+                                    {% if post.department %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ post.department }}</span>
+                                    {% endif %}
+                                </div>
+                                <h5 class="card-title fw-bold text-dark mb-1">
+                                    <a href="{{ url_for('detail', post_id=post.id) }}" class="text-decoration-none text-dark stretched-link">{{ post.title }}</a>
+                                </h5>
+                                <p class="card-text text-muted small mb-2">판매자: {{ post.username }}</p>
+                                <div class="mt-auto fw-bold text-dark fs-5">{{ "{:,}".format(post.price) }}원</div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fa-regular fa-folder-open fa-3x mb-3"></i>
+                        <p>등록된 상품이 없습니다.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 💡 3초마다 안 읽은 알림 개수를 실시간으로 체크하여 상단 뱃지 갱신 -->
+    {% if session.get('user_id') %}
+    <script>
+        setInterval(async () => {
+            try {
+                let response = await fetch('/api/unread-count');
+                if (!response.ok) return;
+                let data = await response.json();
+                let unreadCount = data.unread_count;
+
+                let badgeContainer = document.getElementById('unread-badge-container');
+                if (unreadCount > 0) {
+                    badgeContainer.innerHTML = `
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${unreadCount}
+                        </span>
+                    `;
+                } else {
+                    badgeContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.error("알림 개수 동기화 실패:", error);
+            }
+        }, 3000);
+    </script>
+    {% endif %}
+
+</body>
+</html>

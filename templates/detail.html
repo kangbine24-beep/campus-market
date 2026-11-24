@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }} - 경동 마켓</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0b2545;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+        .container {
+            max-width: 760px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            padding: 40px;
+            background: #ffffff !important;
+        }
+        .detail-img-wrapper {
+            position: relative;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .detail-img {
+            max-height: 360px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: filter 0.3s;
+        }
+        .img-completed {
+            filter: brightness(0.7) blur(1.5px);
+        }
+        .badge-overlay-bottom-right {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(220, 53, 69, 0.95) !important;
+            color: white;
+            font-weight: 800;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 1.25rem;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 2;
+        }
+        .ai-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f7ff 100%);
+            border: 1px solid #90caf9;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.04);
+        }
+        .ai-title {
+            color: #0d6efd;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ai-content-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .ai-content-item:last-child {
+            margin-bottom: 0;
+        }
+        .ai-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 105px;
+        }
+        .ai-value {
+            color: #212529;
+        }
+        .price-tag {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #212529;
+        }
+        /* 테두리 없는 순수 하트 버튼 스타일 */
+        .btn-pure-heart {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            font-size: 1.6rem;
+            color: #ced4da;
+            transition: transform 0.15s ease, color 0.15s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-pure-heart:hover {
+            transform: scale(1.15);
+            color: #fa5252;
+        }
+        .btn-pure-heart.active {
+            color: #fa5252;
+        }
+        .btn-custom-chat {
+            background-color: #fee500 !important;
+            color: #3c1e1e !important;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            display: block;
+            width: 100%;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .btn-custom-chat:hover {
+            background-color: #fdd835 !important;
+            color: #3c1e1e !important;
+        }
+        .btn-outline-custom {
+            border: 1px solid #dee2e6;
+            color: #495057;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px;
+            background: white;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .btn-outline-custom:hover {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .btn-danger-custom {
+            background-color: #fff5f5;
+            color: #fa5252;
+            border: 1px solid #ffe3e3;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .btn-danger-custom:hover {
+            background-color: #fa5252;
+            color: white;
+        }
+        .content-box {
+            background-color: #f8fafc;
+            border-radius: 14px;
+            padding: 24px;
+            color: #333;
+            line-height: 1.7;
+            font-size: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">{{ post.category }}</span>
+                    {% if post.department %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill ms-1">{{ post.department }}</span>
+                    {% endif %}
+                </div>
+                <span class="badge {% if post.status == '판매중' %}bg-success-subtle text-success border border-success-subtle{% else %}bg-secondary-subtle text-secondary border border-secondary-subtle{% endif %} px-3 py-2 rounded-pill fw-bold">
+                    {{ post.status }}
+                </span>
+            </div>
+
+            <h2 class="fw-bold text-dark mb-2">{{ post.title }}</h2>
+            <p class="text-muted small mb-3">판매자: <span class="fw-semibold text-dark">{{ post.username }}</span> &nbsp;|&nbsp; 등록일: {{ post.created_at }}</p>
+
+            <!-- 가격 및 테두리 없는 순수 하트 버튼 영역 -->
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div class="price-tag m-0">{{ "{:,}".format(post.price) }}원</div>
+                <form action="{{ url_for('toggle_favorite', post_id=post.id) }}" method="POST" class="m-0">
+                    <button type="submit" class="btn-pure-heart {% if is_favorite %}active{% endif %}" title="{% if is_favorite %}찜 취소하기{% else %}찜하기{% endif %}">
+                        {% if is_favorite %}
+                            <i class="fa-solid fa-heart"></i>
+                        {% else %}
+                            <i class="fa-regular fa-heart"></i>
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+
+            {% if post.image_filename %}
+                <div class="detail-img-wrapper mb-4">
+                    <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="detail-img {% if post.status == '거래완료' %}img-completed{% endif %}" alt="상품 이미지">
+                    {% if post.status == '거래완료' %}
+                        <span class="badge badge-overlay-bottom-right">거래완료</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if post.ai_summary %}
+                <div class="ai-box mb-4">
+                    <div class="ai-title">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI 핵심 요약
+                    </div>
+                    {% set lines = post.ai_summary.split('\n') %}
+                    {% for line in lines %}
+                        {% if line.strip() %}
+                            {% set parts = line.replace('• ', '').split(': ') %}
+                            <div class="ai-content-item">
+                                <span class="ai-label">{{ parts[0] }}</span>
+                                <span class="ai-value">{{ parts[1] if parts|length > 1 else '' }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="mb-5">
+                <h5 class="fw-bold mb-3 text-dark">상품 상세 설명</h5>
+                <div class="content-box" style="white-space: pre-line;">{{ post.content }}</div>
+            </div>
+
+            <!-- 버튼 액션 영역 (채팅 및 관리 버튼) -->
+            <div class="d-grid gap-2 mb-3">
+                <a href="{{ url_for('chat_room', post_id=post.id) }}" class="btn-custom-chat shadow-sm py-3">
+                    <i class="fa-regular fa-comment-dots me-2"></i> 구매자 문의 채팅방 입장하기
+                </a>
+                
+                {% if session.get('user_id') == post.user_id %}
+                    <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST" class="d-grid">
+                        <button type="submit" class="btn btn-outline-custom py-2.5">
+                            {% if post.status == '판매중' %}거래 완료로 변경하기{% else %}판매 중으로 변경하기{% endif %}
+                        </button>
+                    </form>
+                    <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" class="d-grid" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn-danger-custom py-2.5">상품 삭제하기</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="{{ url_for('index') }}" class="text-decoration-none text-muted fw-semibold small">&larr; 목록으로 돌아가기</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>이메일 인증 - KDU-Market</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container" style="max-width: 400px; margin-top: 100px;">
+        <h2>학교 웹메일 인증</h2>
+        <p>입력하신 경동대 메일로 전송된 6자리 인증번호를 입력해주세요.</p>
+        
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        
+        <!-- 테스트용으로 화면에 표시되는 인증번호 메시지 -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="background: #e8f0fe; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
+                    {% for message in messages %}
+                        <p style="margin: 0; color: #1a73e8; font-weight: bold;">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div style="margin-bottom: 15px;">
+                <label>인증번호 6자리</label>
+                <input type="text" name="auth_code" required style="width: 100%; padding: 8px;" placeholder="예: 123456">
+            </div>
+            <button type="submit" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px;">인증 완료 및 가입</button>
+        </form>
+    </div>
+</body>
+</html>
