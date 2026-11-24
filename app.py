@@ -370,6 +370,36 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/withdraw', methods=['POST'])
+def withdraw():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    db = get_db()
+
+    # 본인이 작성한 게시글과 연결된 찜·채팅 내역 먼저 정리
+    my_post_rows = db.execute('SELECT id FROM posts WHERE user_id = ?', (user_id,)).fetchall()
+    my_post_ids = [row['id'] for row in my_post_rows]
+
+    if my_post_ids:
+        placeholders = ','.join('?' for _ in my_post_ids)
+        db.execute(f'DELETE FROM favorites WHERE post_id IN ({placeholders})', my_post_ids)
+        db.execute(f'DELETE FROM chats WHERE post_id IN ({placeholders})', my_post_ids)
+
+    # 본인이 찜하거나 주고받은 채팅 내역 삭제
+    db.execute('DELETE FROM favorites WHERE user_id = ?', (user_id,))
+    db.execute('DELETE FROM chats WHERE sender_id = ? OR receiver_id = ?', (user_id, user_id))
+
+    # 본인 게시글 및 계정 삭제
+    db.execute('DELETE FROM posts WHERE user_id = ?', (user_id,))
+    db.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    db.commit()
+
+    session.clear()
+    return redirect(url_for('index'))
+
+
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     if 'user_id' not in session:
