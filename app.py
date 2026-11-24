@@ -114,6 +114,10 @@ def init_db():
         db.commit()
 
 
+# Gunicorn 등 WSGI 서버 실행 시에도 DB 테이블이 없다면 생성
+init_db()
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
